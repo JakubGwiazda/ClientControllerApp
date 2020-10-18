@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="ClientControllerApp.MainMenu">
+        <Grid ColumnSpacing="1"
+              RowSpacing="2" 
+              VerticalOptions="Center"
+              HorizontalOptions="Center" >
+
+        <Grid.Resources>
+            <ResourceDictionary>
+                <Style TargetType="Button">
+                    <Setter Property="FontSize" Value="Medium"/>
+                    <Setter Property="BorderWidth" Value="2"/>
+                    <Setter Property="BackgroundColor" Value="DarkOrange"/>
+                    <Setter Property="HeightRequest" Value="50"/>
+                    <Setter Property="WidthRequest" Value="100"/>
+                </Style>
+            </ResourceDictionary>
+        </Grid.Resources>
+
+        <Button Text="Sound"
+                Grid.Row="0"
+                Clicked="Sound_clicked"/>
+        <Button Text="Music player"
+                Grid.Row="1"
+                Clicked="Player_Clicked"/>
+
+
+
+    </Grid>
+   
+</ContentPage>

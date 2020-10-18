@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:ClientControllerApp;assembly=ClientControllerApp"
+             mc:Ignorable="d"
+             x:Class="ClientControllerApp.SoundPage">
+    <ContentPage.BindingContext>
+        <local:SoundPageVM/>
+    </ContentPage.BindingContext>
+    
+    <StackLayout Spacing="10" Padding="10" >
+      
+        <Label Text="Set computer sound level by insert value from 0 to 100 into field or use slider."
+                HorizontalOptions="Start" Padding="20"/>
+        <Entry     x:Name="SoundLvLInputField"
+                   Text="{Binding CurrentSoundLevel}"
+                   WidthRequest="100" 
+                   HorizontalOptions="Center"
+                   BackgroundColor="BurlyWood"
+                   Margin="10"/>
+        <Frame BorderColor="Black" Padding="5">
+            <Slider x:Name="changeLvLSoundSlider"
+                    Value="{Binding Source={x:Reference SoundLvLInputField}, Path=Text, Mode=TwoWay}"
+                    Minimum="0"
+                    Maximum="100"
+                    WidthRequest="300"
+                    HorizontalOptions="Fill"
+                    Margin="10" 
+                    BackgroundColor="White"
+                    MinimumTrackColor="Gray"
+                    MaximumTrackColor="DarkRed"/>
+        </Frame>
+        <Button Text="Set sound level" WidthRequest="100" Command="{Binding ChangeSoundLevelCommand}" CommandParameter="{Binding CurrentSoundLevel}" />
+        <Button Text="Mute computer sound" WidthRequest="100" Command="{Binding ChangeSoundLevelCommand}" CommandParameter="0"/>
+    </StackLayout>
+</ContentPage>
