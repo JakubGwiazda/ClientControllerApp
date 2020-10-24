@@ -8,7 +8,10 @@ namespace ClientControllerApp
     {
         setsound,
         getsound,
-        GET_SONG_LIST
+        GET_SONG_LIST,
+        PLAY_SONG,
+        STOP_PLAY,
+        START_PLAY_AGAIN
 
     }
 }

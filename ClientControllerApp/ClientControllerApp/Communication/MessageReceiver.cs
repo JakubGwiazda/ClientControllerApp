@@ -20,13 +20,11 @@ namespace ClientControllerApp
                  do
                 {
                     int numberOfBytesRead = Connector.Instance.stream.Read(msgBuffor, 0, msgBuffor.Length);
-                    myCompleteMessage.AppendFormat("{0}", Encoding.ASCII.GetString(msgBuffor, 0, numberOfBytesRead));
+                    myCompleteMessage.AppendFormat("{0}", Encoding.UTF8.GetString(msgBuffor, 0, numberOfBytesRead));
                 } while (Connector.Instance.stream.DataAvailable);
                 
             }
-            Func<string, string> clearResponse = (x) => x.Substring(0, x.IndexOf('\0'));
             string dataReceived = myCompleteMessage.ToString();
-           // string dataReceived = clearResponse(Encoding.UTF8.GetString(msgBuffor));
             return dataReceived;
         }
    
