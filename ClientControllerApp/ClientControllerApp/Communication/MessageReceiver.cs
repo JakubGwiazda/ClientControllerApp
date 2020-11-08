@@ -27,7 +27,20 @@ namespace ClientControllerApp
             string dataReceived = myCompleteMessage.ToString();
             return dataReceived;
         }
-   
+
+        public static void ReceiveSongData()
+        {
+            try
+            {
+                byte[] buffor = new byte[1024];
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
         public static Dictionary<string,List<string>> GetServerSongListFromResponse()
         {
             byte[] msgBuffor = new byte[Connector.Instance.client.ReceiveBufferSize];
@@ -42,5 +55,6 @@ namespace ClientControllerApp
             var myObj = binFormatter.Deserialize(mStream);
             return (Dictionary<string, List<string>>)myObj;
         }
+      
     }
 }

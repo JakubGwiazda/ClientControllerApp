@@ -44,9 +44,23 @@ namespace ClientControllerApp
         {
             SendOrderToServer(CreateJSON(ServerOrderList.STOP_PLAY.ToString(), null));
         }
+        public static void Forward()
+        {
+            SendOrderToServer(CreateJSON(ServerOrderList.FORWARD.ToString(), null));
+
+        }
+        public static void Backward()
+        {
+            SendOrderToServer(CreateJSON(ServerOrderList.BACKWARD.ToString(), null));
+
+        }
         public static void PlaySongAgain()
         {
             SendOrderToServer(CreateJSON(ServerOrderList.START_PLAY_AGAIN.ToString(), null));
+        }
+        public static void PlaySongFromSpecificPoint(int point)
+        {
+            SendOrderToServer(CreateJSON(ServerOrderList.PLAY_FROM_SPECIFIC_POINT.ToString(), point.ToString()));
         }
         public static string CreateJSON(string order, string message)
         {

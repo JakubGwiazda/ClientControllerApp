@@ -7,7 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Xamarin.Forms;
+using Xamarin.Forms.Internals;
 using Xamarin.Forms.Xaml;
+using Xamarin.RangeSlider.Common;
+using Xamarin.RangeSlider.Forms;
 namespace ClientControllerApp
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
@@ -20,9 +23,9 @@ namespace ClientControllerApp
             BindingContext = ppvm;
             InitializeComponent();
             DisplayPageElements();
-           
+
         }
-       
+
         void DisplayPageElements()
         {
             this.Content = new StackLayout
@@ -35,7 +38,7 @@ namespace ClientControllerApp
                 }
             };
         }
-       private Label ShowMainTitle()
+        private Label ShowMainTitle()
         {
             Label titleLabel = new Label();
             titleLabel.Text = "List of songs on the server. Choose one to play.";
@@ -50,10 +53,9 @@ namespace ClientControllerApp
                 ItemsSource = PlayerPageVM.ListOfSongsFromServer,
                 IsGroupingEnabled = true,
                 GroupDisplayBinding = new Binding("FirstCharacter"),
-                SelectionMode=ListViewSelectionMode.Single,
-                
-              // SelectedItem=new Binding("SelectedSong"),
-                
+                SelectionMode = ListViewSelectionMode.Single,
+
+
                 ItemTemplate = new DataTemplate(() =>
                 {
                     Label titleLabel = new Label();
@@ -80,16 +82,16 @@ namespace ClientControllerApp
                         }
                     };
                 })
-               
+
             };
             listView.ItemSelected += OnSelection;
             return listView;
-         
+
         }
-        
+
         private StackLayout ShowSongPlayerMenu()
         {
-            
+
             Label actualSongTitle = new Label();
             actualSongTitle.SetBinding(Label.TextProperty, "CurrentPlayingSong");
 
@@ -100,11 +102,36 @@ namespace ClientControllerApp
 
             Button backwardSong = new Button();
             backwardSong.Text = "Back";
+            backwardSong.Command = ppvm.Backward;
             Button forwardSong = new Button();
             forwardSong.Text = "Forward";
+            forwardSong.Command = ppvm.Forward;
+
+            Label currentSongTime = new Label();
+            currentSongTime.SetBinding(Label.TextProperty, "CurrentSongTime");
+            currentSongTime.WidthRequest = 40;
+            currentSongTime.HorizontalTextAlignment = TextAlignment.Center;
+            Label durationSongTime = new Label();
+            durationSongTime.SetBinding(Label.TextProperty, "SongDurationTime");
+            durationSongTime.HorizontalTextAlignment = TextAlignment.Center;
+            durationSongTime.WidthRequest = 40;
+            Label testowa = new Label();
+            testowa.HorizontalOptions = LayoutOptions.Center;
+            testowa.BackgroundColor = Color.Blue;
+            Slider songProgressSlider = new Slider();
+            songProgressSlider.HorizontalOptions = LayoutOptions.FillAndExpand;
+            songProgressSlider.Minimum = 0;
+            songProgressSlider.SetBinding(Slider.MaximumProperty, "CurrentSongMaxDurationInSeconds");
+            songProgressSlider.SetBinding(Slider.ValueProperty, "CurrentSongPosition",BindingMode.TwoWay);
+            songProgressSlider.DragStartedCommand =  ppvm.StopPlayingOnDragSlider;
+            songProgressSlider.DragCompletedCommand = ppvm.StartPlayingOnDropSlider;
+            songProgressSlider.ValueChanged += SliderValueChanged;
+            songProgressSlider.MinimumTrackColor = Color.Red;
+            songProgressSlider.MaximumTrackColor = Color.Gray;
+            
             StackLayout songPlayer = new StackLayout
             {
-                HorizontalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.FillAndExpand,
                 VerticalOptions = LayoutOptions.End,
                 Padding = new Thickness(0, 10),
                 Orientation = StackOrientation.Vertical,
@@ -114,33 +141,52 @@ namespace ClientControllerApp
                     new StackLayout
                     {
                         Orientation=StackOrientation.Horizontal,
+                        HorizontalOptions=LayoutOptions.Center,
                         Children =
                         {
                             backwardSong,
                             playSongButton,
                             forwardSong
                         }
-                    }
+                    },
+                    new StackLayout
+                       {
+                         Orientation=StackOrientation.Horizontal,
+                         HorizontalOptions=LayoutOptions.FillAndExpand,
+                                Children={
+                                currentSongTime,
+                                songProgressSlider,
+                                durationSongTime
+                                
+                                }
+                                
+                      },
                 }
             };
             return songPlayer;
         }
 
+        private void SliderValueChanged(object sender, ValueChangedEventArgs e)
+        {
+            TimeSpan time = TimeSpan.FromSeconds((int)e.NewValue);
+            ppvm.CurrentSongTime = time.ToString("mm':'ss");
+            
+        }
+       
+     
         void OnSelection(object sender, SelectedItemChangedEventArgs e)
         {
             if (e.SelectedItem == null)
             {
                 return;
             }
-            
+
             ppvm.CurrentPlayingSong = ((Song)e.SelectedItem).SongTitle;
             ppvm.CurrentAvailableDisplayOption = "Stop";
             ppvm.PlayChoosenSong((Song)e.SelectedItem);
 
         }
-
-
-
+     
     }
 
 }

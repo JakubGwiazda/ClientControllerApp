@@ -11,7 +11,9 @@ namespace ClientControllerApp
         GET_SONG_LIST,
         PLAY_SONG,
         STOP_PLAY,
-        START_PLAY_AGAIN
-
+        START_PLAY_AGAIN,
+        FORWARD,
+        BACKWARD,
+        PLAY_FROM_SPECIFIC_POINT
     }
 }
