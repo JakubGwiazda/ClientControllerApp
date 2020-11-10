@@ -128,7 +128,14 @@ namespace ClientControllerApp
             songProgressSlider.ValueChanged += SliderValueChanged;
             songProgressSlider.MinimumTrackColor = Color.Red;
             songProgressSlider.MaximumTrackColor = Color.Gray;
-            
+
+            ImageButton addToPlayListButton = new ImageButton
+            {
+                Source = "add.png",
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.CenterAndExpand
+
+            };
             StackLayout songPlayer = new StackLayout
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
@@ -146,7 +153,8 @@ namespace ClientControllerApp
                         {
                             backwardSong,
                             playSongButton,
-                            forwardSong
+                            forwardSong,
+                            addToPlayListButton
                         }
                     },
                     new StackLayout

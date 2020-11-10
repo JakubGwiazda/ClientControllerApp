@@ -28,14 +28,17 @@ namespace ClientControllerApp
         private string songDurationTime;
         private int currentSongPosition;
         private int currentSongMaxDurationInSeconds;
-        public static System.Timers.Timer TaskTimer;
         SongData times;
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        CancellationToken token;
         public PlayerPageVM()
         {
             var responseWithSongs = GetValueFromMsg(GetSongListFromServer());
             DeserializeDictIntoSimpleSong(responseWithSongs);
             CurrentSongMaxDurationInSeconds = 100;
-          
+            
+            token = cancellationTokenSource.Token;
+
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -138,7 +141,6 @@ namespace ClientControllerApp
 
         public ICommand StartPlayingOnDropSlider => new Command(() =>
         {
-            //OrderSender.PlaySongAgain();
             OrderSender.PlaySongFromSpecificPoint(ChangeSongTime());
         });
 
@@ -183,32 +185,47 @@ namespace ClientControllerApp
         }
         public void PlayChoosenSong(Song song)
         {
+            
+            CurrentSongPosition = 0;
             CurrentSongTime = "00:00";
             OrderSender.PlaySong(song.SongTitle);
             times = new SongData();
-            SetSongDurationTime();
-            TaskTimer = new System.Timers.Timer(500);
-            TaskTimer.Elapsed += new ElapsedEventHandler(UpdateSongTime);
-            TaskTimer.AutoReset = true;
-            TaskTimer.Enabled = true;
+            Action update = UpdateTime;
+            Thread.Sleep(500);// wymagane do odpowiedniego ustawienia czasów otrzymanych z serwera oraz czasu na wykonanie na nim operacji
+            UpdateSongStatus(update, 0.5,token);
+
         }
-        public void UpdateSongTime(object source, ElapsedEventArgs e)
+    
+        public  void UpdateTime()
         {
             var songTimes = MessageReceiver.GetResponseFromServer();
             times = JsonConvert.DeserializeObject<SongData>(songTimes);
-            CurrentSongTime = times.Minutes.ToString() + ":" + times.Seconds.ToString();
-            CurrentSongPosition = GetSongTimeInSeconds(times);
+            if (times.IsSongDuration)
+            {
+                TimeSpan time = TimeSpan.FromSeconds(GetSongTimeInSeconds(times));
+                SongDurationTime = time.ToString("mm':'ss");
+                CurrentSongMaxDurationInSeconds = GetSongTimeInSeconds(times);
+            }
+            else
+            {
+                CurrentSongPosition = GetSongTimeInSeconds(times);
+
+            }
         }
-        public void SetSongDurationTime()
+        private void UpdateSongStatus(Action action, double seconds,CancellationToken token)
         {
-            var songDurationTime = MessageReceiver.GetResponseFromServer();
-            times = JsonConvert.DeserializeObject<SongData>(songDurationTime);
-            SongDurationTime = times.Minutes.ToString() + ":" + times.Seconds.ToString();
-            TimeSpan time = TimeSpan.FromSeconds(GetSongTimeInSeconds(times));
-            SongDurationTime = time.ToString("mm':'ss");
-               
-            CurrentSongMaxDurationInSeconds = GetSongTimeInSeconds(times);
+            if (action == null)
+                return;
+            Task.Run(async () =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    action();
+                    await Task.Delay(TimeSpan.FromSeconds(seconds), token);
+                }
+            });
         }
+    
         public int GetSongTimeInSeconds(SongData songTimes)
         {
             return songTimes.Minutes * 60 + songTimes.Seconds;

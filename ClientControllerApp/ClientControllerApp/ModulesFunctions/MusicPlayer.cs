@@ -8,8 +8,9 @@ namespace ClientControllerApp
 
     public class SongData
     {
-        public int Minutes { get; set; }
-        public int Seconds { get; set; }
+        public  int Minutes { get; set; }
+        public  int Seconds { get; set; }
+        public  bool IsSongDuration { get; set; }
         public SongData() { }
         
     }
