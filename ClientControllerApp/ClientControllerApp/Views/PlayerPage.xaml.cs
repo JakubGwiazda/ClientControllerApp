@@ -11,6 +11,7 @@ using Xamarin.Forms.Internals;
 using Xamarin.Forms.Xaml;
 using Xamarin.RangeSlider.Common;
 using Xamarin.RangeSlider.Forms;
+
 namespace ClientControllerApp
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
@@ -23,7 +24,7 @@ namespace ClientControllerApp
             BindingContext = ppvm;
             InitializeComponent();
             DisplayPageElements();
-
+           
         }
 
         void DisplayPageElements()
@@ -131,11 +132,15 @@ namespace ClientControllerApp
 
             ImageButton addToPlayListButton = new ImageButton
             {
-                Source = "add.png",
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.CenterAndExpand
-
+                Source = "add25_25.png",
+                BackgroundColor=Color.White,
+                HorizontalOptions=LayoutOptions.End
             };
+
+            addToPlayListButton.Clicked += ((sender,e) => {
+                (this.Parent as TabbedPage).CurrentPage = (this.Parent as TabbedPage).Children[1];  
+            });
+
             StackLayout songPlayer = new StackLayout
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
@@ -173,15 +178,20 @@ namespace ClientControllerApp
             };
             return songPlayer;
         }
-
-        private void SliderValueChanged(object sender, ValueChangedEventArgs e)
+    
+         void SliderValueChanged(object sender, ValueChangedEventArgs e)
         {
             TimeSpan time = TimeSpan.FromSeconds((int)e.NewValue);
             ppvm.CurrentSongTime = time.ToString("mm':'ss");
             
         }
        
-     
+        async void ShowPlaylistMiniMenu(object sender, EventArgs e)
+        {
+            await Navigation.PushModalAsync(new AddToPlaylistModal());
+        }
+    
+
         void OnSelection(object sender, SelectedItemChangedEventArgs e)
         {
             if (e.SelectedItem == null)

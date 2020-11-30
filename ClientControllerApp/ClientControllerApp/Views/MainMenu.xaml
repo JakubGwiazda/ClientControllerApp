@@ -6,7 +6,7 @@
              mc:Ignorable="d"
              x:Class="ClientControllerApp.MainMenu">
         <Grid ColumnSpacing="1"
-              RowSpacing="2" 
+              RowSpacing="3" 
               VerticalOptions="Center"
               HorizontalOptions="Center" >
 
@@ -28,7 +28,9 @@
         <Button Text="Music player"
                 Grid.Row="1"
                 Clicked="Player_Clicked"/>
-
+        <Button Text="Music player"
+                Grid.Row="2"
+                Clicked="Music_Player_Clicked"/>
 
 
     </Grid>
