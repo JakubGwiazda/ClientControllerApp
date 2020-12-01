@@ -26,12 +26,13 @@ namespace ClientControllerApp
             }
         }
         SQLiteAsyncConnection Database;
-
-        
+        public static string SongToAdd { get; set; }
+        public static bool AddSong { get; set; }
         public PlaylistsVM()
         {
             Database = DatabaseInitializator.Database();
             playList = this.GetPlaylistsFromDB();
+            AddSong = false;
         }
 
         private ObservableCollection<Playlist> GetPlaylistsFromDB()
@@ -41,30 +42,39 @@ namespace ClientControllerApp
 
         }
 
-        public ICommand AddToPlaylist => new Command(() =>
+        public ICommand AddToPlaylist => new Command((p) =>
         {
-
+            if (AddSong == true) { 
+            int PlaylistID = playList.Where(listPosition => listPosition.PlaylistName.Equals(p)).Select(i => i.ID).First();
+            Songs song = new Songs
+            {
+                PlaylistId = PlaylistID,
+                SongTitle = SongToAdd
+            };
+                Database.InsertAsync(song);
+                AddSong = false;
+               var a = Database.Table<Songs>().ToListAsync().Result;
+                var b = 0;
+            }
         });
 
         public ICommand DeleteFromPlaylist => new Command((p) =>
         {
-            int PlaylistIdToDelete =  playList.Where(listPosition => listPosition.PlaylistName.Equals(p)).Select(i => i.ID).First();
-            var PlaylistIdToDelete2 = playList.Where(listPosition => listPosition.PlaylistName.Equals(p)).Select(i=>i).First();
-            
-            Database.DeleteAsync(PlaylistIdToDelete2.ID);
-            playList.Remove(PlaylistIdToDelete2);
+
+            Playlist PlaylistObjectToDelete = playList.Where(listPosition => listPosition.PlaylistName.Equals(p)).Select(i => i).First();
+            //Database.DeleteAllAsync<Playlist>();
+            Database.DeleteAsync(PlaylistObjectToDelete);
+            playList.Remove(PlaylistObjectToDelete);
         });
         public ICommand CreatePlaylist => new Command((p) =>
         {
-            // DatabaseInitializator.Database().InsertAsync(p);
             Playlist pl = new Playlist()
             {
                 PlaylistName = (string)p
             };
             Database.InsertAsync(pl);
             playList.Add(new Playlist { PlaylistName=pl.PlaylistName});
-            /*  var inserted = Database.Table<Playlist>().ToListAsync();
-              var a = inserted.Result;*/
+         
         });
         void OnPropertyChanged([CallerMemberName] string name = null)
         {

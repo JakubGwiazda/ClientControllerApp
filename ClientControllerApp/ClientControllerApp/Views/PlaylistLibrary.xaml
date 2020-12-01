@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<ContentPage x:Name="ParentView" xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -13,7 +13,7 @@
         <StackLayout>
             <Entry x:Name="Playlist_name" Placeholder="Playlist name" />
             <Button Text="Add" Command="{Binding Path=CreatePlaylist}" CommandParameter="{Binding Source={x:Reference Playlist_name},Path=Text}"/>
-            <ListView ItemsSource="{Binding Playlists}" >
+            <ListView ItemsSource="{Binding Playlists}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
@@ -23,14 +23,15 @@
                                         <ColumnDefinition Width="9*"/>
                                         <ColumnDefinition Width="1*"/>
                                     </Grid.ColumnDefinitions>
-                                        <Label x:Name="" Text="{Binding PlaylistName}" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" FontSize="Medium"/>
-                                    <Button ImageSource="deleteIcon.png" Grid.Column="1" BackgroundColor="White" Command="{Binding DeleteFromPlaylist}" CommandParameter="{Binding Source={x:Reference Playlist},Path=Text}"/>
+                                        <Label x:Name="Playlist" Text="{Binding PlaylistName}" Grid.Column="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" FontSize="Medium"/>
+                                    <Button ImageSource="deleteIcon.png" Grid.Column="1" BackgroundColor="White"  Command="{Binding BindingContext.DeleteFromPlaylist, Source={x:Reference ParentView}}" CommandParameter="{Binding Source={x:Reference Playlist},Path=Text}"/>
                                 </Grid>
                             </ViewCell.View>
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+            
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

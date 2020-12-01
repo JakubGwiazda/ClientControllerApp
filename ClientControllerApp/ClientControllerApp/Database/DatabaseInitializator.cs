@@ -23,6 +23,7 @@ namespace ClientControllerApp
             {
                 _connection = new SQLiteAsyncConnection(DataBase.DatabasePath, DataBase.Flags);
                 _connection.CreateTableAsync<Playlist>();
+                _connection.CreateTableAsync<Songs>();
                 return _connection;
             }
             else

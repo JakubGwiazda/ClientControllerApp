@@ -138,9 +138,11 @@ namespace ClientControllerApp
             };
 
             addToPlayListButton.Clicked += ((sender,e) => {
-                (this.Parent as TabbedPage).CurrentPage = (this.Parent as TabbedPage).Children[1];  
+                (this.Parent as TabbedPage).CurrentPage = (this.Parent as TabbedPage).Children[1];
+                PlaylistsVM.SongToAdd = actualSongTitle.Text;
+                PlaylistsVM.AddSong = true;
             });
-
+            
             StackLayout songPlayer = new StackLayout
             {
                 HorizontalOptions = LayoutOptions.FillAndExpand,
