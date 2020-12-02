@@ -14,6 +14,8 @@ namespace ClientControllerApp
     public class PlaylistsVM : INotifyPropertyChanged
     {
         ObservableCollection<Playlist> playList = new ObservableCollection<Playlist>();
+        ObservableCollection<Songs> songsOnPlaylist = new ObservableCollection<Songs>();
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<Playlist> Playlists
@@ -22,6 +24,15 @@ namespace ClientControllerApp
             set
             {
                 playList=value;
+                OnPropertyChanged();
+            }
+        }
+        public ObservableCollection<Songs> Songs
+        {
+            get { return songsOnPlaylist; }
+            set
+            {
+                songsOnPlaylist = value;
                 OnPropertyChanged();
             }
         }
@@ -53,8 +64,7 @@ namespace ClientControllerApp
             };
                 Database.InsertAsync(song);
                 AddSong = false;
-               var a = Database.Table<Songs>().ToListAsync().Result;
-                var b = 0;
+             
             }
         });
 

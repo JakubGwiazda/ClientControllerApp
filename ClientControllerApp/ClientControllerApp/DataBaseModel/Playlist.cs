@@ -4,7 +4,7 @@ using System.Text;
 using SQLite;
 namespace ClientControllerApp
 {
-    public class Playlist
+    public class Playlist: List<Song>
     {
         [PrimaryKey,AutoIncrement,Unique]
         public int ID { get; set; }
