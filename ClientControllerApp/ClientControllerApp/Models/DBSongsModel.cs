@@ -4,9 +4,8 @@ using System.Text;
 
 namespace ClientControllerApp
 {
-     public   class PlaylistModel:List<DBSongsModel>
+    public class DBSongsModel
     {
-        public  string PlaylistTitle { get; set; }
-     
+        public string SongTitle { get; set; }
     }
 }

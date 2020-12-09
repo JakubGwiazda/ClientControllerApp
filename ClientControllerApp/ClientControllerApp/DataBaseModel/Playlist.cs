@@ -4,10 +4,12 @@ using System.Text;
 using SQLite;
 namespace ClientControllerApp
 {
-    public class Playlist: List<Song>
+    [Table("Playlist")]
+    public class Playlist//: List<Song>
     {
-        [PrimaryKey,AutoIncrement,Unique]
+        [PrimaryKey,AutoIncrement,Unique,Column("ID")]
         public int ID { get; set; }
+        [Column("Playlist_Name")]
         public string PlaylistName { get; set; }
 
     }

@@ -7,7 +7,6 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows.Input;
-using ClientControllerApp.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Xamarin.Forms;
