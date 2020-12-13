@@ -17,6 +17,11 @@ namespace ClientControllerApp
         ObservableCollection<Songs> songsOnPlaylist = new ObservableCollection<Songs>();
         ObservableCollection<PlaylistModel> playlistModel = new ObservableCollection<PlaylistModel>();
         public event PropertyChangedEventHandler PropertyChanged;
+        private bool _IsVisible=false;
+       private string _PlaylistTitleToAdd;
+        private string _inputtedText;
+        SQLiteAsyncConnection Database;
+
 
         public ObservableCollection<Playlist> Playlists
         {
@@ -36,7 +41,6 @@ namespace ClientControllerApp
                 OnPropertyChanged();
             }
         }
-        SQLiteAsyncConnection Database;
         public static string SongToAdd { get; set; }
         public static bool AddSong { get; set; }
         public ObservableCollection<PlaylistModel> PlaylistsToDisplay
@@ -45,6 +49,31 @@ namespace ClientControllerApp
             set
             {
                 playlistModel = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool IsVisible
+        {
+            get
+            {
+                return _IsVisible;
+            }
+            set
+            {
+                _IsVisible = value;
+                OnPropertyChanged();
+            }
+        }
+        public string InputtedText { get { return _inputtedText; } set { _inputtedText = value; OnPropertyChanged(); } }
+        public string PlaylistTitleToAdd
+        {
+            get
+            {
+                return _PlaylistTitleToAdd;
+            }
+            set
+            {
+                _PlaylistTitleToAdd = value;
                 OnPropertyChanged();
             }
         }
@@ -103,26 +132,48 @@ namespace ClientControllerApp
         {
             PlaylistModel PlaylistObjectToDelete = PlaylistsToDisplay.Where(listPosition => listPosition.PlaylistTitle.Equals(p)).Select(i => i).First();//.PlaylistName.Equals(p)).Select(i => i).First();
 
-          //  Playlist PlaylistObjectToDelete = playList.Where(listPosition => listPosition.PlaylistName.Equals(p)).Select(i => i).First();
-            //Database.DeleteAllAsync<Playlist>();
-           // Database.DeleteAsync(PlaylistObjectToDelete);
             Database.ExecuteAsync($"Delete from Playlist WHERE Playlist_Name='{PlaylistObjectToDelete.PlaylistTitle}'");
            var a = Database.Table<Playlist>().ToListAsync().Result;
             PlaylistsToDisplay.Remove(PlaylistObjectToDelete);
-            //playList.Remove(PlaylistObjectToDelete);
         });
         public ICommand CreatePlaylist => new Command((p) =>
         {
+            if (!CheckIfPlaylistAlreadyExists((string)p)) { 
             Playlist pl = new Playlist()
             {
                 PlaylistName = (string)p
             };
-            Database.InsertAsync(pl);
-            PlaylistsToDisplay = SetPlaylistToDisplay();
-           // Playlists = GetPlaylistsFromDB();
-           //playList.Add(new Playlist { PlaylistName=pl.PlaylistName});
+                IsVisible = false;
+                Database.InsertAsync(pl).GetAwaiter().GetResult();
+                InputtedText = "";
+                PlaylistsToDisplay = SetPlaylistToDisplay();
+            }
+            else
+            {
+                IsVisible = true;
+            }
 
         });
+        private bool CheckIfPlaylistAlreadyExists(string playlistTitleToSave)
+        {
+
+            var valueFromList = (from savedNames in PlaylistsToDisplay where savedNames.PlaylistTitle == playlistTitleToSave select savedNames);
+            if (valueFromList.Count() == 0)
+            {
+                return false;
+            }
+           
+            if (valueFromList.First().PlaylistTitle.ToLower().Equals(playlistTitleToSave.ToLower()))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+       
         void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

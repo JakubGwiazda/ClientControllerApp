@@ -7,7 +7,7 @@ namespace ClientControllerApp
 {
     public static class DataBase
     {
-        public const string DataBaseFileName = "Playlist.db3";
+        public const string DataBaseFileName = "PlaylistD.db3";
         public const SQLite.SQLiteOpenFlags Flags = SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.SharedCache;
 
         public static string DatabasePath
