@@ -17,8 +17,8 @@ namespace ClientControllerApp
         ObservableCollection<Songs> songsOnPlaylist = new ObservableCollection<Songs>();
         ObservableCollection<PlaylistModel> playlistModel = new ObservableCollection<PlaylistModel>();
         public event PropertyChangedEventHandler PropertyChanged;
-        private bool _IsVisible=false;
-       private string _PlaylistTitleToAdd;
+        private bool _IsVisible = false;
+        private string _PlaylistTitleToAdd;
         private string _inputtedText;
         SQLiteAsyncConnection Database;
 
@@ -26,63 +26,46 @@ namespace ClientControllerApp
         public ObservableCollection<Playlist> Playlists
         {
             get { return playList; }
-            set
-            {
-                playList=value;
-                OnPropertyChanged();
-            }
+            set { playList = value; OnPropertyChanged(); }
         }
         public ObservableCollection<Songs> Songs
         {
             get { return songsOnPlaylist; }
-            set
-            {
-                songsOnPlaylist = value;
-                OnPropertyChanged();
-            }
+            set { songsOnPlaylist = value; OnPropertyChanged(); }
         }
         public static string SongToAdd { get; set; }
         public static bool AddSong { get; set; }
         public ObservableCollection<PlaylistModel> PlaylistsToDisplay
         {
             get { return playlistModel; }
-            set
-            {
-                playlistModel = value;
-                OnPropertyChanged();
-            }
+            set { playlistModel = value; OnPropertyChanged(); }
         }
         public bool IsVisible
         {
-            get
-            {
-                return _IsVisible;
-            }
-            set
-            {
-                _IsVisible = value;
-                OnPropertyChanged();
-            }
+            get { return _IsVisible; }
+            set { _IsVisible = value; OnPropertyChanged(); }
         }
-        public string InputtedText { get { return _inputtedText; } set { _inputtedText = value; OnPropertyChanged(); } }
+        public string InputtedText { 
+            get { return _inputtedText; } 
+            set { _inputtedText = value; OnPropertyChanged(); } }
         public string PlaylistTitleToAdd
         {
-            get
-            {
-                return _PlaylistTitleToAdd;
-            }
-            set
-            {
-                _PlaylistTitleToAdd = value;
-                OnPropertyChanged();
-            }
+            get { return _PlaylistTitleToAdd; }
+            set { _PlaylistTitleToAdd = value; OnPropertyChanged(); }
         }
         public PlaylistsVM()
         {
             Database = DatabaseInitializator.Database();
-           // Playlists = this.GetPlaylistsFromDB();
-            PlaylistsToDisplay= SetPlaylistToDisplay();
+           //  DeleteAll();
+            // Playlists = this.GetPlaylistsFromDB();
+            PlaylistsToDisplay = SetPlaylistToDisplay();
             AddSong = false;
+        }
+        void DeleteAll()
+        {
+            Database.ExecuteAsync("Delete from Songs").GetAwaiter().GetResult();
+            Database.ExecuteAsync("Delete from Playlist").GetAwaiter().GetResult();
+
         }
         private ObservableCollection<PlaylistModel> SetPlaylistToDisplay()
         {
@@ -90,14 +73,16 @@ namespace ClientControllerApp
             var dbPlaylist = Database.Table<Playlist>().ToListAsync().Result;
             var dbSongs = Database.Table<Songs>().ToListAsync().Result;
             ObservableCollection<PlaylistModel> tempList = new ObservableCollection<PlaylistModel>();
-            foreach(var playlist in dbPlaylist)
+            foreach (var playlist in dbPlaylist)
             {
+                
+                IEnumerable<Songs> playlistSongSet = (from song in dbSongs where song.PlaylistId == playlist.ID select song).ToList();
+                var tmp = new PlaylistModel { ID = playlist.ID, PlaylistTitle = playlist.PlaylistName };
 
-                IEnumerable<Songs> playlistSongSet = from song in dbSongs where song.PlaylistId == playlist.ID select song;
-                var tmp = new PlaylistModel { PlaylistTitle = playlist.PlaylistName };
-                foreach(var item in playlistSongSet)
+                foreach (var item in playlistSongSet)
                 {
-                    tmp.Add(new DBSongsModel { SongTitle = item.SongTitle });
+                    tmp.Add(new DBSongsModel { Playlist_ID = item.PlaylistId, SongTitle = item.SongTitle });
+
                 }
                 tempList.Add(tmp);
             }
@@ -115,16 +100,20 @@ namespace ClientControllerApp
 
         public ICommand AddToPlaylist => new Command((p) =>
         {
-            if (AddSong == true) { 
-            int PlaylistID = playList.Where(listPosition => listPosition.PlaylistName.Equals(p)).Select(i => i.ID).First();
-            Songs song = new Songs
+            if (AddSong == true)
             {
-                PlaylistId = PlaylistID,
-                SongTitle = SongToAdd
-            };
-                Database.InsertAsync(song);
+
+                int PlaylistID = PlaylistsToDisplay.Where(listPosition => listPosition.PlaylistTitle.Equals(p)).Select(listpostion => listpostion.ID).First();
+
+                Songs song = new Songs
+                {
+                    PlaylistId = PlaylistID,
+                    SongTitle = SongToAdd
+                };
+                Database.InsertAsync(song).GetAwaiter().GetResult();
                 AddSong = false;
-             
+                PlaylistsToDisplay = SetPlaylistToDisplay();
+
             }
         });
 
@@ -133,16 +122,17 @@ namespace ClientControllerApp
             PlaylistModel PlaylistObjectToDelete = PlaylistsToDisplay.Where(listPosition => listPosition.PlaylistTitle.Equals(p)).Select(i => i).First();//.PlaylistName.Equals(p)).Select(i => i).First();
 
             Database.ExecuteAsync($"Delete from Playlist WHERE Playlist_Name='{PlaylistObjectToDelete.PlaylistTitle}'");
-           var a = Database.Table<Playlist>().ToListAsync().Result;
+            var a = Database.Table<Playlist>().ToListAsync().Result;
             PlaylistsToDisplay.Remove(PlaylistObjectToDelete);
         });
         public ICommand CreatePlaylist => new Command((p) =>
         {
-            if (!CheckIfPlaylistAlreadyExists((string)p)) { 
-            Playlist pl = new Playlist()
+            if (!CheckIfPlaylistAlreadyExists((string)p))
             {
-                PlaylistName = (string)p
-            };
+                Playlist pl = new Playlist()
+                {
+                    PlaylistName = (string)p
+                };
                 IsVisible = false;
                 Database.InsertAsync(pl).GetAwaiter().GetResult();
                 InputtedText = "";
@@ -162,7 +152,7 @@ namespace ClientControllerApp
             {
                 return false;
             }
-           
+
             if (valueFromList.First().PlaylistTitle.ToLower().Equals(playlistTitleToSave.ToLower()))
             {
                 return true;
@@ -173,7 +163,7 @@ namespace ClientControllerApp
             }
 
         }
-       
+
         void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
