@@ -9,11 +9,5 @@ namespace ClientControllerApp
         public int ID { get; set; }
         public  string PlaylistTitle { get; set; }
      
-     /*   public PlaylistModel(int id, string playlistTitle)
-        {
-            this.ID = id;
-            this.PlaylistTitle = playlistTitle;
-        }*/
-
     }
 }

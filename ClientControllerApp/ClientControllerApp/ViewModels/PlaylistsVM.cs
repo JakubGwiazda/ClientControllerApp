@@ -18,6 +18,7 @@ namespace ClientControllerApp
         ObservableCollection<PlaylistModel> playlistModel = new ObservableCollection<PlaylistModel>();
         public event PropertyChangedEventHandler PropertyChanged;
         private bool _IsVisible = false;
+        private string _ValidationCommunicat;
         private string _PlaylistTitleToAdd;
         private string _inputtedText;
         SQLiteAsyncConnection Database;
@@ -32,6 +33,18 @@ namespace ClientControllerApp
         {
             get { return songsOnPlaylist; }
             set { songsOnPlaylist = value; OnPropertyChanged(); }
+        }
+        public string ValidationCommunicat
+        {
+            get
+            {
+                return _ValidationCommunicat;
+            }
+            set
+            {
+                _ValidationCommunicat = value;
+                OnPropertyChanged();
+            }
         }
         public static string SongToAdd { get; set; }
         public static bool AddSong { get; set; }
@@ -56,8 +69,6 @@ namespace ClientControllerApp
         public PlaylistsVM()
         {
             Database = DatabaseInitializator.Database();
-           //  DeleteAll();
-            // Playlists = this.GetPlaylistsFromDB();
             PlaylistsToDisplay = SetPlaylistToDisplay();
             AddSong = false;
         }
@@ -93,13 +104,18 @@ namespace ClientControllerApp
 
         private ObservableCollection<Playlist> GetPlaylistsFromDB()
         {
-            // List<Playlist> myList = Database.Table<Playlist>().ToListAsync().Result;
             return new ObservableCollection<Playlist>(Database.Table<Playlist>().ToListAsync().Result);
 
         }
 
         public ICommand AddToPlaylist => new Command((p) =>
         {
+            if (CheckIfSongIsAlreadyOnPlayList(SongToAdd))
+            {
+                AddSong = false;
+                ValidationCommunicat =Communicats.Song_Was_Already_Added.GetDescription();
+                IsVisible = true;
+            }
             if (AddSong == true)
             {
 
@@ -124,6 +140,11 @@ namespace ClientControllerApp
             Database.ExecuteAsync($"Delete from Playlist WHERE Playlist_Name='{PlaylistObjectToDelete.PlaylistTitle}'");
             var a = Database.Table<Playlist>().ToListAsync().Result;
             PlaylistsToDisplay.Remove(PlaylistObjectToDelete);
+        });
+        public ICommand DeleteSongFromPlaylist => new Command((p) =>
+        {
+        Database.ExecuteAsync($"delete from Songs where Song_Title='{(string)p}'").GetAwaiter().GetResult();
+        PlaylistsToDisplay = SetPlaylistToDisplay();
         });
         public ICommand CreatePlaylist => new Command((p) =>
         {
@@ -155,6 +176,7 @@ namespace ClientControllerApp
 
             if (valueFromList.First().PlaylistTitle.ToLower().Equals(playlistTitleToSave.ToLower()))
             {
+                ValidationCommunicat = Communicats.Playlist_Exists.GetDescription() ;
                 return true;
             }
             else
@@ -163,7 +185,24 @@ namespace ClientControllerApp
             }
 
         }
+        private bool CheckIfSongIsAlreadyOnPlayList(in string song)
+        {
+            bool isSongSaved = false;
+            foreach(var playlist in PlaylistsToDisplay)
+            {
+                foreach(var songPiece in playlist)
+                {
+                    if (song.ToLower().Equals(songPiece.SongTitle.ToLower()))
+                    {
+                        isSongSaved = true;
+                        return isSongSaved;
+                    }
 
+
+                }
+            }
+            return isSongSaved;
+        }
         void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
