@@ -21,10 +21,7 @@ namespace ClientControllerApp
             await Navigation.PushAsync(new SoundPage());
         }
 
-        private async void  Player_Clicked(object sender, EventArgs e)
-        {
-            await Navigation.PushAsync(new PlayerPage());
-        }
+
         private async void Music_Player_Clicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new MusicPlayerMainPage());

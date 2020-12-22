@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Timers;
 using System.Windows.Input;
 using SQLite;
 using Xamarin.Forms;
@@ -115,12 +116,12 @@ namespace ClientControllerApp
                 AddSong = false;
                 ValidationCommunicat =Communicats.Song_Was_Already_Added.GetDescription();
                 IsVisible = true;
+                StartCountToHideValidationCommunicat();
+
             }
             if (AddSong == true)
             {
-
                 int PlaylistID = PlaylistsToDisplay.Where(listPosition => listPosition.PlaylistTitle.Equals(p)).Select(listpostion => listpostion.ID).First();
-
                 Songs song = new Songs
                 {
                     PlaylistId = PlaylistID,
@@ -129,7 +130,6 @@ namespace ClientControllerApp
                 Database.InsertAsync(song).GetAwaiter().GetResult();
                 AddSong = false;
                 PlaylistsToDisplay = SetPlaylistToDisplay();
-
             }
         });
 
@@ -148,7 +148,13 @@ namespace ClientControllerApp
         });
         public ICommand CreatePlaylist => new Command((p) =>
         {
-            if (!CheckIfPlaylistAlreadyExists((string)p))
+            if (p is null)
+            {
+                ValidationCommunicat = Communicats.Playlist_empty.GetDescription();
+                IsVisible = true;
+                StartCountToHideValidationCommunicat();
+            }
+            else if (!CheckIfPlaylistAlreadyExists((string)p))
             {
                 Playlist pl = new Playlist()
                 {
@@ -177,6 +183,7 @@ namespace ClientControllerApp
             if (valueFromList.First().PlaylistTitle.ToLower().Equals(playlistTitleToSave.ToLower()))
             {
                 ValidationCommunicat = Communicats.Playlist_Exists.GetDescription() ;
+                StartCountToHideValidationCommunicat();
                 return true;
             }
             else
@@ -202,6 +209,15 @@ namespace ClientControllerApp
                 }
             }
             return isSongSaved;
+        }
+
+        void StartCountToHideValidationCommunicat()
+        {
+            Device.StartTimer(new TimeSpan(0, 0, 4),()=> {
+                IsVisible = false;
+                return false; 
+            });
+
         }
         void OnPropertyChanged([CallerMemberName] string name = null)
         {

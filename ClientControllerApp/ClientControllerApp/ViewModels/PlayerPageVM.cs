@@ -21,7 +21,7 @@ namespace ClientControllerApp
     {
         public static List<SongSet> ListOfSongsFromServer { get; set; } = new List<SongSet>();
         private string currentPlayingSong;
-        private string musicButtonText = "Play";
+        private string musicButtonText = "play25x25.png";
         private string currentSongTime;
         private string songTimeBeforeChange;
         private string songDurationTime;
@@ -108,11 +108,11 @@ namespace ClientControllerApp
      
         public ICommand ChangeButtonOption => new Command(() =>
         {
-            if (CurrentAvailableDisplayOption.Equals("Play") && CurrentPlayingSong == null)
+            if (CurrentAvailableDisplayOption.Equals("play25x25.png") && CurrentPlayingSong == null)
             {
                 OrderSender.PlaySong(CurrentPlayingSong);
             }
-            else if (CurrentAvailableDisplayOption.Equals("Stop"))
+            else if (CurrentAvailableDisplayOption.Equals("pause.png"))
             {
                 OrderSender.StopPlayingSong();
             }
@@ -120,7 +120,7 @@ namespace ClientControllerApp
             {
                 OrderSender.PlaySongAgain();
             }
-            CurrentAvailableDisplayOption = CurrentAvailableDisplayOption.Equals("Play") ? "Stop" : "Play";
+            CurrentAvailableDisplayOption = CurrentAvailableDisplayOption.Equals("play25x25.png") ? "pause.png" : "play25x25.png";
 
         });
         public ICommand Forward => new Command(() =>

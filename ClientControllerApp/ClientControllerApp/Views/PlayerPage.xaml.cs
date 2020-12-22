@@ -97,17 +97,21 @@ namespace ClientControllerApp
             actualSongTitle.SetBinding(Label.TextProperty, "CurrentPlayingSong");
 
             Button playSongButton = new Button();
-            playSongButton.Text = "Play";
-            playSongButton.SetBinding(Button.TextProperty, "CurrentAvailableDisplayOption");
+            //playSongButton.Text = "Play";
+           // playSongButton.ImageSource = "play25x25.png";
+            playSongButton.SetBinding(Button.ImageSourceProperty, "CurrentAvailableDisplayOption");
             playSongButton.Command = ppvm.ChangeButtonOption;
-
+            
             Button backwardSong = new Button();
-            backwardSong.Text = "Back";
+            //backwardSong.Text = "Back";
+            backwardSong.ImageSource = "backward25x25.png";
             backwardSong.Command = ppvm.Backward;
+    
             Button forwardSong = new Button();
-            forwardSong.Text = "Forward";
+            //forwardSong.Text = "Forward";
+            forwardSong.ImageSource = "forward25x25.png";
             forwardSong.Command = ppvm.Forward;
-
+            
             Label currentSongTime = new Label();
             currentSongTime.SetBinding(Label.TextProperty, "CurrentSongTime");
             currentSongTime.WidthRequest = 40;
@@ -132,7 +136,7 @@ namespace ClientControllerApp
 
             ImageButton addToPlayListButton = new ImageButton
             {
-                Source = "add25_25.png",
+                Source = "add.png",
                 BackgroundColor=Color.White,
                 HorizontalOptions=LayoutOptions.End
             };
@@ -202,7 +206,7 @@ namespace ClientControllerApp
             }
 
             ppvm.CurrentPlayingSong = ((Song)e.SelectedItem).SongTitle;
-            ppvm.CurrentAvailableDisplayOption = "Stop";
+            ppvm.CurrentAvailableDisplayOption = "pause.png";
             ppvm.PlayChoosenSong((Song)e.SelectedItem);
 
         }

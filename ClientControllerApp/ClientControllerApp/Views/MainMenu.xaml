@@ -17,7 +17,7 @@
                     <Setter Property="BorderWidth" Value="2"/>
                     <Setter Property="BackgroundColor" Value="DarkOrange"/>
                     <Setter Property="HeightRequest" Value="50"/>
-                    <Setter Property="WidthRequest" Value="100"/>
+                    <Setter Property="WidthRequest" Value="150"/>
                 </Style>
             </ResourceDictionary>
         </Grid.Resources>
@@ -27,9 +27,6 @@
                 Clicked="Sound_clicked"/>
         <Button Text="Music player"
                 Grid.Row="1"
-                Clicked="Player_Clicked"/>
-        <Button Text="Music player"
-                Grid.Row="2"
                 Clicked="Music_Player_Clicked"/>
 
 
