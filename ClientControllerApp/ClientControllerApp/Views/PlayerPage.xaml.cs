@@ -24,18 +24,22 @@ namespace ClientControllerApp
             BindingContext = ppvm;
             InitializeComponent();
             DisplayPageElements();
+            
            
         }
 
         void DisplayPageElements()
         {
+           // ContentView cv = new Player();
             this.Content = new StackLayout
             {
                 Children =
                 {
                     ShowMainTitle(),
                     ShowList(),
-                  ShowSongPlayerMenu()
+                 // ShowSongPlayerMenu(),
+                  new Player()
+
                 }
             };
         }
@@ -204,10 +208,12 @@ namespace ClientControllerApp
             {
                 return;
             }
-
-            ppvm.CurrentPlayingSong = ((Song)e.SelectedItem).SongTitle;
+            PlayerVM.Instance.CurrentPlayingSong = ((Song)e.SelectedItem).SongTitle;
+            PlayerVM.Instance.CurrentAvailableDisplayOption = "pause.png";
+            PlayerVM.Instance.StartPlayingChoosenSong(((Song)e.SelectedItem).SongTitle);
+            /*ppvm.CurrentPlayingSong = ((Song)e.SelectedItem).SongTitle;
             ppvm.CurrentAvailableDisplayOption = "pause.png";
-            ppvm.PlayChoosenSong((Song)e.SelectedItem);
+            ppvm.PlayChoosenSong((Song)e.SelectedItem);*/
 
         }
      

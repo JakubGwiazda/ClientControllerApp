@@ -12,7 +12,7 @@ using Xamarin.Forms;
 
 namespace ClientControllerApp
 {
-    public class PlaylistsVM : INotifyPropertyChanged
+    public class PlaylistsVM :  INotifyPropertyChanged
     {
         ObservableCollection<Playlist> playList = new ObservableCollection<Playlist>();
         ObservableCollection<Songs> songsOnPlaylist = new ObservableCollection<Songs>();
@@ -23,7 +23,7 @@ namespace ClientControllerApp
         private string _PlaylistTitleToAdd;
         private string _inputtedText;
         SQLiteAsyncConnection Database;
-
+        private string ChoosenSongToPlayFromPlaylist { get; set; }
 
         public ObservableCollection<Playlist> Playlists
         {
@@ -171,15 +171,23 @@ namespace ClientControllerApp
             }
 
         });
+        public ICommand PlaySongFromPlaylist => new Command((p)=> {
+            PlayerVM.Instance.CurrentPlayingSong = (string)p;
+            PlayerVM.Instance.CurrentAvailableDisplayOption = "pause.png";
+           // PlayerVM.CurrentAvailableDisplayOption = "pause.png";
+
+            OrderSender.PlaySong((string)p);
+            
+            ChoosenSongToPlayFromPlaylist = (string)p;
+
+        });
         private bool CheckIfPlaylistAlreadyExists(string playlistTitleToSave)
         {
-
             var valueFromList = (from savedNames in PlaylistsToDisplay where savedNames.PlaylistTitle == playlistTitleToSave select savedNames);
             if (valueFromList.Count() == 0)
             {
                 return false;
             }
-
             if (valueFromList.First().PlaylistTitle.ToLower().Equals(playlistTitleToSave.ToLower()))
             {
                 ValidationCommunicat = Communicats.Playlist_Exists.GetDescription() ;
@@ -190,7 +198,6 @@ namespace ClientControllerApp
             {
                 return false;
             }
-
         }
         private bool CheckIfSongIsAlreadyOnPlayList(in string song)
         {
@@ -204,12 +211,19 @@ namespace ClientControllerApp
                         isSongSaved = true;
                         return isSongSaved;
                     }
-
-
                 }
             }
             return isSongSaved;
+        } 
+        private string PlayNextSongFromPlaylist(string songFromPlaylist)
+        {
+            var dbSongs = Database.Table<Songs>().ToListAsync().Result;
+            var playlistId = from song in dbSongs where song.SongTitle.Equals(ChoosenSongToPlayFromPlaylist) select song.PlaylistId;
+            var songsFromCurrentPlayingPlaylist = (from songs in dbSongs where songs.PlaylistId.Equals(playlistId) orderby songs.ID select songs).ToList();
+            string nextSong = songsFromCurrentPlayingPlaylist.SkipWhile(song => !song.SongTitle.Equals(ChoosenSongToPlayFromPlaylist)).Skip(1).FirstOrDefault().SongTitle;
+            return nextSong;
         }
+
 
         void StartCountToHideValidationCommunicat()
         {
@@ -217,7 +231,6 @@ namespace ClientControllerApp
                 IsVisible = false;
                 return false; 
             });
-
         }
         void OnPropertyChanged([CallerMemberName] string name = null)
         {

@@ -12,11 +12,15 @@ namespace ClientControllerApp
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class PlaylistLibrary : ContentPage
     {
+
+    //    private readonly PlaylistsVM vm;
+
         public PlaylistLibrary()
         {
             InitializeComponent();
+           // this.vm = BindingContext as PlaylistsVM;
         }
-
+   
 
 
     }

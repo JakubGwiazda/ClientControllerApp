@@ -24,8 +24,10 @@ namespace ClientControllerApp
 
             Children.Add(playerPage);
             Children.Add(playlistPage);
+            CheckPage();
         }
-     
+
+
         public void SwitchToPlayerPage()
         {
             CurrentPage = playerPage;
@@ -35,6 +37,14 @@ namespace ClientControllerApp
             CurrentPage = playlistPage;
         }
 
+        private void CheckPage()
+        {
+            this.CurrentPageChanged += (object sender, EventArgs e) =>
+            {
+                int i = this.Children.IndexOf(this.CurrentPage);
+                PlayerVM.Instance.CheckIfAddShoulBeVisible(i);
+            };
+        }
 
     }
 }

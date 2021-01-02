@@ -1,49 +1,56 @@
-﻿using System;
-using System.Collections;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Windows.Input;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Xamarin.Forms;
 using System.Threading;
-using Xamarin.Forms.Internals;
 using System.Threading.Tasks;
-using System.Timers;
+using System.Windows.Input;
+using Xamarin.Forms;
+
 namespace ClientControllerApp
 {
-
-    class PlayerPageVM : INotifyPropertyChanged
+     public class PlayerVM:INotifyPropertyChanged
     {
-        public static List<SongSet> ListOfSongsFromServer { get; set; } = new List<SongSet>();
-        private string currentPlayingSong;
+
         private string musicButtonText = "play25x25.png";
+
+        private string currentPlayingSong;
         private string currentSongTime;
         private string songTimeBeforeChange;
-        private string songDurationTime;
         private int currentSongPosition;
-        private int currentSongMaxDurationInSeconds;
-        SongData times;
-        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         CancellationToken token;
-        public PlayerPageVM()
+        SongData times;
+        private string songDurationTime;
+        private int currentSongMaxDurationInSeconds;
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private bool _addIsVisible = true;
+
+        private  PlayerVM()
         {
-            var responseWithSongs = GetValueFromMsg(GetSongListFromServer());
-            DeserializeDictIntoSimpleSong(responseWithSongs);
             CurrentSongMaxDurationInSeconds = 100;
             token = cancellationTokenSource.Token;
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        void OnPropertyChanged([CallerMemberName] string name = null)
+        private static PlayerVM _instance;
+        public static PlayerVM Instance
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            get { return _instance ?? (_instance = new PlayerVM());}
         }
 
+        public bool AddIsVisible
+        {
+            get
+            {
+                return _addIsVisible;
+            }
+            set
+            {
+                _addIsVisible = value;
+                OnPropertyChanged();
+            }
+        }
         public string CurrentAvailableDisplayOption
         {
             get
@@ -56,6 +63,7 @@ namespace ClientControllerApp
                 OnPropertyChanged();
             }
         }
+
         public string CurrentPlayingSong
         {
             get
@@ -68,6 +76,7 @@ namespace ClientControllerApp
                 OnPropertyChanged();
             }
         }
+
         public string CurrentSongTime
         {
             get
@@ -77,18 +86,6 @@ namespace ClientControllerApp
             set
             {
                 currentSongTime = value;
-                OnPropertyChanged();
-            }
-        }
-        public string SongDurationTime
-        {
-            get
-            {
-                return songDurationTime;
-            }
-            set
-            {
-                songDurationTime = value;
                 OnPropertyChanged();
             }
         }
@@ -102,8 +99,26 @@ namespace ClientControllerApp
             }
 
         }
+        public string SongDurationTime
+        {
+            get
+            {
+                return songDurationTime;
+            }
+            set
+            {
+                songDurationTime = value;
+                OnPropertyChanged();
+            }
+        }
         public int CurrentSongMaxDurationInSeconds { get { return currentSongMaxDurationInSeconds; } set { currentSongMaxDurationInSeconds = value; OnPropertyChanged(); } }
-     
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+ 
         public ICommand ChangeButtonOption => new Command(() =>
         {
             if (CurrentAvailableDisplayOption.Equals("play25x25.png") && CurrentPlayingSong == null)
@@ -121,6 +136,7 @@ namespace ClientControllerApp
             CurrentAvailableDisplayOption = CurrentAvailableDisplayOption.Equals("play25x25.png") ? "pause.png" : "play25x25.png";
 
         });
+
         public ICommand Forward => new Command(() =>
         {
             OrderSender.Forward();
@@ -129,71 +145,41 @@ namespace ClientControllerApp
         {
             OrderSender.Backward();
         });
-
-         public ICommand StopPlayingOnDragSlider => new Command (() => {
-             OrderSender.StopPlayingSong();
-             songTimeBeforeChange = CurrentSongTime;
-          });
-
+        public ICommand StopPlayingOnDragSlider => new Command(() => {
+            OrderSender.StopPlayingSong();
+            songTimeBeforeChange = CurrentSongTime;
+        });
 
         public ICommand StartPlayingOnDropSlider => new Command(() =>
         {
             OrderSender.PlaySongFromSpecificPoint(ChangeSongTime());
         });
-
-        public void StopPlayingMusic()
+        public ICommand AddSongToPlaylist => new Command(()=>
         {
-            OrderSender.StopPlayingSong();
-        }
-        public void StartPlayingMusic()
-        {
-            OrderSender.PlaySongAgain();
-        }
+            //PlaylistsVM.SongToAdd = (string)p;
+            PlaylistsVM.AddSong = true;
+        });
         private int ChangeSongTime()
         {
-            DateTime dateTime = DateTime.ParseExact(songTimeBeforeChange, "mm:ss",CultureInfo.InvariantCulture);
+            DateTime dateTime = DateTime.ParseExact(songTimeBeforeChange, "mm:ss", CultureInfo.InvariantCulture);
             int startSeconds = dateTime.Minute * 60 + dateTime.Second;
             DateTime dateTimeAfterChanges = DateTime.ParseExact(CurrentSongTime, "mm:ss", CultureInfo.InvariantCulture);
             int endSeconds = dateTimeAfterChanges.Minute * 60 + dateTimeAfterChanges.Second;
             return endSeconds - startSeconds;
         }
-
-        public void DeserializeDictIntoSimpleSong(Dictionary<string, List<string>> songList)
+        public void StartPlayingChoosenSong(string songTitle)
         {
-            foreach (var item in songList)
-            {
-                SongSet tmpSet = new SongSet(item.Key);
-                foreach (var song in item.Value)
-                {
-                    tmpSet.Add(new Song(song));
-                }
-                ListOfSongsFromServer.Add(tmpSet);
-            }
-        }
-        public string GetSongListFromServer()
-        {
-            OrderSender.GetServerSoundList();
-            return MessageReceiver.GetResponseFromServer();
-        }
-
-        public Dictionary<string, List<string>> GetValueFromMsg(string msg)
-        {
-            return JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(msg);
-        }
-        public void PlayChoosenSong(Song song)
-        {
-            
             CurrentSongPosition = 0;
             CurrentSongTime = "00:00";
-            OrderSender.PlaySong(song.SongTitle);
+            OrderSender.PlaySong(songTitle);
             times = new SongData();
             Action update = UpdateTime;
             Thread.Sleep(500);// wymagane do odpowiedniego ustawienia czasów otrzymanych z serwera oraz czasu na wykonanie na nim operacji
-            UpdateSongStatus(update, 0.5,token);
-
+            UpdateSongStatus(update, 0.5, token);
         }
+
     
-        public  void UpdateTime()
+        public void UpdateTime()
         {
             var songTimes = MessageReceiver.GetResponseFromServer();
             times = JsonConvert.DeserializeObject<SongData>(songTimes);
@@ -206,10 +192,9 @@ namespace ClientControllerApp
             else
             {
                 CurrentSongPosition = GetSongTimeInSeconds(times);
-
             }
         }
-        private void UpdateSongStatus(Action action, double seconds,CancellationToken token)
+        private void UpdateSongStatus(Action action, double seconds, CancellationToken token)
         {
             if (action == null)
                 return;
@@ -222,12 +207,16 @@ namespace ClientControllerApp
                 }
             });
         }
-    
+
         public int GetSongTimeInSeconds(SongData songTimes)
         {
             return songTimes.Minutes * 60 + songTimes.Seconds;
         }
 
+        public void CheckIfAddShoulBeVisible(int pageNumber)
+        {
+            AddIsVisible = pageNumber == 0;
+        }
        
     }
 }

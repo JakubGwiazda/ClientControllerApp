@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:ClientControllerApp;assembly=ClientControllerApp"
+             mc:Ignorable="d"
+             x:Class="ClientControllerApp.Player;assembly=ClientControllerApp">
+   
+    <ContentView.Content>
+
+      <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="End" Orientation="Vertical" Padding="0,10">
+            <Label x:Name="PlayingSong" Text="{Binding CurrentPlayingSong}"/>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+                <Button ImageSource="backward25x25.png" Command="{Binding Backward}"/>
+                <Button ImageSource="{Binding CurrentAvailableDisplayOption}" Command="{Binding ChangeButtonOption}" />
+                <Button ImageSource="forward25x25.png" Command="{Binding Forward}"/>
+                <Button ImageSource="add.png" BackgroundColor="White" HorizontalOptions="End" IsVisible="{Binding AddIsVisible}" 
+                       />
+            </StackLayout>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                <Label Text="{Binding CurrentSongTime}" />
+                <Slider HorizontalOptions="FillAndExpand"
+                        Minimum="0"
+                        Maximum="{Binding CurrentSongMaxDurationInSeconds}"
+                        Value="{Binding CurrentSongPosition, Mode=TwoWay}"
+                        ValueChanged="OnSliderValueChanged"
+                        DragStartedCommand="{Binding StopPlayingOnDragSlider}"
+                        DragCompletedCommand="{Binding StartPlayingOnDropSlider}"
+                        MinimumTrackColor="Red" 
+                        MaximumTrackColor="Gray"/>
+                <Label Text="{Binding SongDurationTime}"/>
+            </StackLayout>
+        </StackLayout>
+  </ContentView.Content>
+</ContentView>
