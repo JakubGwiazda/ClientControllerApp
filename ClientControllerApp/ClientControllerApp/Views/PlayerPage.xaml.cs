@@ -17,11 +17,9 @@ namespace ClientControllerApp
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class PlayerPage : ContentPage
     {
-        private PlayerPageVM ppvm;
         public PlayerPage()
         {
-            ppvm = new PlayerPageVM();
-            BindingContext = ppvm;
+            BindingContext = new PlayerPageVM();
             InitializeComponent();
             DisplayPageElements();
             
@@ -30,14 +28,12 @@ namespace ClientControllerApp
 
         void DisplayPageElements()
         {
-           // ContentView cv = new Player();
             this.Content = new StackLayout
             {
                 Children =
                 {
                     ShowMainTitle(),
                     ShowList(),
-                 // ShowSongPlayerMenu(),
                   new Player()
 
                 }
@@ -59,7 +55,7 @@ namespace ClientControllerApp
                 IsGroupingEnabled = true,
                 GroupDisplayBinding = new Binding("FirstCharacter"),
                 SelectionMode = ListViewSelectionMode.Single,
-
+                
 
                 ItemTemplate = new DataTemplate(() =>
                 {
@@ -94,114 +90,7 @@ namespace ClientControllerApp
 
         }
 
-        private StackLayout ShowSongPlayerMenu()
-        {
-
-            Label actualSongTitle = new Label();
-            actualSongTitle.SetBinding(Label.TextProperty, "CurrentPlayingSong");
-
-            Button playSongButton = new Button();
-            //playSongButton.Text = "Play";
-           // playSongButton.ImageSource = "play25x25.png";
-            playSongButton.SetBinding(Button.ImageSourceProperty, "CurrentAvailableDisplayOption");
-            playSongButton.Command = ppvm.ChangeButtonOption;
-            
-            Button backwardSong = new Button();
-            //backwardSong.Text = "Back";
-            backwardSong.ImageSource = "backward25x25.png";
-            backwardSong.Command = ppvm.Backward;
-    
-            Button forwardSong = new Button();
-            //forwardSong.Text = "Forward";
-            forwardSong.ImageSource = "forward25x25.png";
-            forwardSong.Command = ppvm.Forward;
-            
-            Label currentSongTime = new Label();
-            currentSongTime.SetBinding(Label.TextProperty, "CurrentSongTime");
-            currentSongTime.WidthRequest = 40;
-            currentSongTime.HorizontalTextAlignment = TextAlignment.Center;
-            Label durationSongTime = new Label();
-            durationSongTime.SetBinding(Label.TextProperty, "SongDurationTime");
-            durationSongTime.HorizontalTextAlignment = TextAlignment.Center;
-            durationSongTime.WidthRequest = 40;
-            Label testowa = new Label();
-            testowa.HorizontalOptions = LayoutOptions.Center;
-            testowa.BackgroundColor = Color.Blue;
-            Slider songProgressSlider = new Slider();
-            songProgressSlider.HorizontalOptions = LayoutOptions.FillAndExpand;
-            songProgressSlider.Minimum = 0;
-            songProgressSlider.SetBinding(Slider.MaximumProperty, "CurrentSongMaxDurationInSeconds");
-            songProgressSlider.SetBinding(Slider.ValueProperty, "CurrentSongPosition",BindingMode.TwoWay);
-            songProgressSlider.DragStartedCommand =  ppvm.StopPlayingOnDragSlider;
-            songProgressSlider.DragCompletedCommand = ppvm.StartPlayingOnDropSlider;
-            songProgressSlider.ValueChanged += SliderValueChanged;
-            songProgressSlider.MinimumTrackColor = Color.Red;
-            songProgressSlider.MaximumTrackColor = Color.Gray;
-
-            ImageButton addToPlayListButton = new ImageButton
-            {
-                Source = "add.png",
-                BackgroundColor=Color.White,
-                HorizontalOptions=LayoutOptions.End
-            };
-
-            addToPlayListButton.Clicked += ((sender,e) => {
-                (this.Parent as TabbedPage).CurrentPage = (this.Parent as TabbedPage).Children[1];
-                PlaylistsVM.SongToAdd = actualSongTitle.Text;
-                PlaylistsVM.AddSong = true;
-            });
-            
-            StackLayout songPlayer = new StackLayout
-            {
-                HorizontalOptions = LayoutOptions.FillAndExpand,
-                VerticalOptions = LayoutOptions.End,
-                Padding = new Thickness(0, 10),
-                Orientation = StackOrientation.Vertical,
-                Children =
-                {
-                    actualSongTitle,
-                    new StackLayout
-                    {
-                        Orientation=StackOrientation.Horizontal,
-                        HorizontalOptions=LayoutOptions.Center,
-                        Children =
-                        {
-                            backwardSong,
-                            playSongButton,
-                            forwardSong,
-                            addToPlayListButton
-                        }
-                    },
-                    new StackLayout
-                       {
-                         Orientation=StackOrientation.Horizontal,
-                         HorizontalOptions=LayoutOptions.FillAndExpand,
-                                Children={
-                                currentSongTime,
-                                songProgressSlider,
-                                durationSongTime
-                                
-                                }
-                                
-                      },
-                }
-            };
-            return songPlayer;
-        }
-    
-         void SliderValueChanged(object sender, ValueChangedEventArgs e)
-        {
-            TimeSpan time = TimeSpan.FromSeconds((int)e.NewValue);
-            ppvm.CurrentSongTime = time.ToString("mm':'ss");
-            
-        }
        
-        async void ShowPlaylistMiniMenu(object sender, EventArgs e)
-        {
-            await Navigation.PushModalAsync(new AddToPlaylistModal());
-        }
-    
-
         void OnSelection(object sender, SelectedItemChangedEventArgs e)
         {
             if (e.SelectedItem == null)
@@ -211,9 +100,7 @@ namespace ClientControllerApp
             PlayerVM.Instance.CurrentPlayingSong = ((Song)e.SelectedItem).SongTitle;
             PlayerVM.Instance.CurrentAvailableDisplayOption = "pause.png";
             PlayerVM.Instance.StartPlayingChoosenSong(((Song)e.SelectedItem).SongTitle);
-            /*ppvm.CurrentPlayingSong = ((Song)e.SelectedItem).SongTitle;
-            ppvm.CurrentAvailableDisplayOption = "pause.png";
-            ppvm.PlayChoosenSong((Song)e.SelectedItem);*/
+          
 
         }
      

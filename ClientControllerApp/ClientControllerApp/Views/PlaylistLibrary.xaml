@@ -17,27 +17,6 @@
             <Label x:Name="Validation" Text="{Binding ValidationCommunicat}" IsVisible="{Binding BindingContext.IsVisible, Source={x:Reference ParentView}}" 
                    TextColor="Red" />
             <ListView x:Name="TitlePlaylist" ItemsSource="{Binding PlaylistsToDisplay}" IsGroupingEnabled="True" GroupDisplayBinding="{Binding PlaylistTitle}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <ViewCell.View>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="9*"/>
-                                        <ColumnDefinition Width="1*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button x:Name="Song" Text="{Binding SongTitle}" 
-                                            Grid.Column="0" FontSize="Medium" 
-                                            Command="{Binding BindingContext.PlaySongFromPlaylist, Source={x:Reference ParentView}}" 
-                                            CommandParameter="{Binding Source={x:Reference Song},Path=Text}"/>
-                                    <Button ImageSource="deleteIcon.png" Grid.Column="1" BackgroundColor="White"  
-                                            Command="{Binding BindingContext.DeleteSongFromPlaylist, Source={x:Reference ParentView}}" 
-                                            CommandParameter="{Binding Source={x:Reference Song},Path=Text}"/>
-                                </Grid>
-                            </ViewCell.View>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
                 <ListView.GroupHeaderTemplate>
                     <DataTemplate>
                         <ViewCell>
@@ -49,8 +28,8 @@
                                         <ColumnDefinition Width="1*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label x:Name="Playlist"  Text="{Binding PlaylistTitle}" Grid.Column="0" HorizontalTextAlignment="Start" 
-                                           VerticalTextAlignment="Center" FontSize="Medium"/>
-                                    <Button  Text="A" BackgroundColor="Green" Grid.Column="1" 
+                                           VerticalTextAlignment="Center" FontSize="Large" TextColor="Orange"/>
+                                    <Button  ImageSource="add.png" BackgroundColor="White" Grid.Column="1" 
                                              Command="{Binding BindingContext.AddToPlaylist, Source={x:Reference ParentView}}" 
                                              CommandParameter="{Binding Source={x:Reference Playlist}, Path=Text}"/>
                                     <Button ImageSource="deleteIcon.png" Grid.Column="2" BackgroundColor="White"  
@@ -61,6 +40,28 @@
                         </ViewCell>
                     </DataTemplate>
                 </ListView.GroupHeaderTemplate>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="9*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button x:Name="Song" Text="{Binding SongTitle}" 
+                                            Grid.Column="0" FontSize="Small" BackgroundColor="White" 
+                                            Command="{Binding BindingContext.PlaySongFromPlaylist, Source={x:Reference ParentView}}" 
+                                            CommandParameter="{Binding Source={x:Reference Song},Path=Text}"/>
+                                    <Button ImageSource="deleteIcon.png" Grid.Column="1" BackgroundColor="White"  
+                                            Command="{Binding BindingContext.DeleteSongFromPlaylist, Source={x:Reference ParentView}}" 
+                                            CommandParameter="{Binding Source={x:Reference Song},Path=Text}"/>
+                                </Grid>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+              
             </ListView>
             <views:Player/>
         </StackLayout>

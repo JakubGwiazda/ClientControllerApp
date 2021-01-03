@@ -12,7 +12,8 @@ namespace ClientControllerApp
         [Description("Song can be added only to one playlist.")]
         Song_Was_Already_Added,
         [Description("Playlist title cannot be empty.")]
-        Playlist_empty
-
-    }
+        Playlist_empty,
+        [Description("No song to add.")]
+        No_song_to_add
+     }
 }

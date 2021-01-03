@@ -37,6 +37,13 @@ namespace ClientControllerApp
             CurrentPage = playlistPage;
         }
 
+        protected override void OnAppearing()
+        {
+            MessagingCenter.Subscribe<PlayerVM, int>(this, "SetActiveTab",(sender,index)=> {
+                CurrentPage = Children[index];
+            });
+        }
+
         private void CheckPage()
         {
             this.CurrentPageChanged += (object sender, EventArgs e) =>

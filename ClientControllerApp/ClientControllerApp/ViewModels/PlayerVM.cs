@@ -156,8 +156,10 @@ namespace ClientControllerApp
         });
         public ICommand AddSongToPlaylist => new Command(()=>
         {
-            //PlaylistsVM.SongToAdd = (string)p;
+            MessagingCenter.Send<PlayerVM, int>(this, "SetActiveTab",1);
+            PlaylistsVM.SongToAdd = CurrentPlayingSong;
             PlaylistsVM.AddSong = true;
+      
         });
         private int ChangeSongTime()
         {

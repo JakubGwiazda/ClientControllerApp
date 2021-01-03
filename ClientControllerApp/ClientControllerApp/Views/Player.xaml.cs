@@ -16,6 +16,7 @@ namespace ClientControllerApp
         {
             InitializeComponent();
             BindingContext = PlayerVM.Instance;
+           
         }
 
         void OnSliderValueChanged(object sender, ValueChangedEventArgs e)
@@ -24,11 +25,7 @@ namespace ClientControllerApp
             PlayerVM.Instance.CurrentSongTime = time.ToString("mm':'ss");
 
         }
-        private void OnAddButtonClicked(object sender, ValueChangedEventArgs e)
-        {
-             (this.Parent as TabbedPage).CurrentPage = (this.Parent as TabbedPage).Children[1];
+      
 
         }
-
-    }
 }

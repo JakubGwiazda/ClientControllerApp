@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:ClientControllerApp;assembly=ClientControllerApp"
              mc:Ignorable="d"
              x:Class="ClientControllerApp.Player;assembly=ClientControllerApp">
-   
+
+    
     <ContentView.Content>
 
       <StackLayout HorizontalOptions="FillAndExpand" VerticalOptions="End" Orientation="Vertical" Padding="0,10">
@@ -15,8 +16,8 @@
                 <Button ImageSource="backward25x25.png" Command="{Binding Backward}"/>
                 <Button ImageSource="{Binding CurrentAvailableDisplayOption}" Command="{Binding ChangeButtonOption}" />
                 <Button ImageSource="forward25x25.png" Command="{Binding Forward}"/>
-                <Button ImageSource="add.png" BackgroundColor="White" HorizontalOptions="End" IsVisible="{Binding AddIsVisible}" 
-                       />
+                <Button x:Name="AddButton" ImageSource="add.png" BackgroundColor="White" HorizontalOptions="End" IsVisible="{Binding AddIsVisible}" 
+                    Command="{Binding AddSongToPlaylist}" />
             </StackLayout>
             <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
                 <Label Text="{Binding CurrentSongTime}" />

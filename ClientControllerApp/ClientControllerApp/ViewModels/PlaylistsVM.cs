@@ -72,6 +72,7 @@ namespace ClientControllerApp
             Database = DatabaseInitializator.Database();
             PlaylistsToDisplay = SetPlaylistToDisplay();
             AddSong = false;
+    
         }
         void DeleteAll()
         {
@@ -111,7 +112,15 @@ namespace ClientControllerApp
 
         public ICommand AddToPlaylist => new Command((p) =>
         {
-            if (CheckIfSongIsAlreadyOnPlayList(SongToAdd))
+            var a = 1;
+            if (SongToAdd == null)
+            {
+                AddSong = false;
+                ValidationCommunicat = Communicats.No_song_to_add.GetDescription();
+                IsVisible = true;
+                StartCountToHideValidationCommunicat();
+            }
+            if (AddSong && CheckIfSongIsAlreadyOnPlayList(SongToAdd))
             {
                 AddSong = false;
                 ValidationCommunicat =Communicats.Song_Was_Already_Added.GetDescription();
@@ -119,7 +128,8 @@ namespace ClientControllerApp
                 StartCountToHideValidationCommunicat();
 
             }
-            if (AddSong == true)
+           
+            if (AddSong)
             {
                 int PlaylistID = PlaylistsToDisplay.Where(listPosition => listPosition.PlaylistTitle.Equals(p)).Select(listpostion => listpostion.ID).First();
                 Songs song = new Songs
@@ -135,11 +145,13 @@ namespace ClientControllerApp
 
         public ICommand DeleteFromPlaylist => new Command((p) =>
         {
-            PlaylistModel PlaylistObjectToDelete = PlaylistsToDisplay.Where(listPosition => listPosition.PlaylistTitle.Equals(p)).Select(i => i).First();//.PlaylistName.Equals(p)).Select(i => i).First();
-
-            Database.ExecuteAsync($"Delete from Playlist WHERE Playlist_Name='{PlaylistObjectToDelete.PlaylistTitle}'");
-            var a = Database.Table<Playlist>().ToListAsync().Result;
+            PlaylistModel PlaylistObjectToDelete = PlaylistsToDisplay.Where(listPosition => listPosition.PlaylistTitle.Equals(p)).Select(i => i).First();
+            
+            Database.ExecuteAsync($"Delete from Playlist WHERE Playlist_Name='{PlaylistObjectToDelete.PlaylistTitle}'").GetAwaiter().GetResult();
+            Database.ExecuteAsync($"Delete from Songs Where Playlist_id={PlaylistObjectToDelete.ID}").GetAwaiter().GetResult();
             PlaylistsToDisplay.Remove(PlaylistObjectToDelete);
+            
+
         });
         public ICommand DeleteSongFromPlaylist => new Command((p) =>
         {
@@ -174,8 +186,7 @@ namespace ClientControllerApp
         public ICommand PlaySongFromPlaylist => new Command((p)=> {
             PlayerVM.Instance.CurrentPlayingSong = (string)p;
             PlayerVM.Instance.CurrentAvailableDisplayOption = "pause.png";
-           // PlayerVM.CurrentAvailableDisplayOption = "pause.png";
-
+         
             OrderSender.PlaySong((string)p);
             
             ChoosenSongToPlayFromPlaylist = (string)p;

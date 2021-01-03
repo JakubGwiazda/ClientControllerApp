@@ -11,7 +11,7 @@ namespace ClientControllerApp
         [PrimaryKey,AutoIncrement,Unique,Column("ID")]
         public int ID { get; set; }
      //   [ForeignKey(typeof(Playlist))]
-        [Column("Playlist_id)")]
+        [Column("Playlist_id")]
         public int PlaylistId { get; set; }
         [Column("Song_Title")]
         public string SongTitle { get; set; }
