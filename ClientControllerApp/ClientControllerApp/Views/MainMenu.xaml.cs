@@ -12,19 +12,24 @@ namespace ClientControllerApp
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MainMenu : ContentPage
     {
+        private readonly SoundPage _soundPage;
+        private readonly MusicPlayerMainPage _musicPlayerMainPage;
+
         public MainMenu()
         {
             InitializeComponent();
+            _soundPage = new SoundPage();
+            _musicPlayerMainPage = new MusicPlayerMainPage();
         }
         private async void Sound_clicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new SoundPage());
+            await Navigation.PushAsync(_soundPage);
         }
 
 
         private async void Music_Player_Clicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new MusicPlayerMainPage());
+            await Navigation.PushAsync(_musicPlayerMainPage);
         }
     }
 }

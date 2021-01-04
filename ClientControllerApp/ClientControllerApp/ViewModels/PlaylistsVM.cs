@@ -112,7 +112,6 @@ namespace ClientControllerApp
 
         public ICommand AddToPlaylist => new Command((p) =>
         {
-            var a = 1;
             if (SongToAdd == null)
             {
                 AddSong = false;

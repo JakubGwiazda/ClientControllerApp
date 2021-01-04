@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-
+using System.Threading;
 namespace ClientControllerApp
 {
     public static class MessageReceiver
@@ -13,14 +13,17 @@ namespace ClientControllerApp
 
         public static  string GetResponseFromServer()
         {
+            
             byte[] msgBuffor = new byte[4096];
             StringBuilder myCompleteMessage = new StringBuilder();
             if (Connector.Instance.stream.CanRead)
             {
                  do
                 {
+                    
                     int numberOfBytesRead = Connector.Instance.stream.Read(msgBuffor, 0, msgBuffor.Length);
                     myCompleteMessage.AppendFormat("{0}", Encoding.UTF8.GetString(msgBuffor, 0, numberOfBytesRead));
+                    Thread.Sleep(500);
                 } while (Connector.Instance.stream.DataAvailable);
                 
             }
@@ -28,19 +31,7 @@ namespace ClientControllerApp
             return dataReceived;
         }
 
-        public static void ReceiveSongData()
-        {
-            try
-            {
-                byte[] buffor = new byte[1024];
-
-            }
-            catch (Exception ex)
-            {
-
-            }
-        }
-
+      
         public static Dictionary<string,List<string>> GetServerSongListFromResponse()
         {
             byte[] msgBuffor = new byte[Connector.Instance.client.ReceiveBufferSize];

@@ -20,5 +20,7 @@ namespace ClientControllerApp
         }
         public TcpClient client { get; set; }
         public NetworkStream stream { get { return client.GetStream(); } }
+       
+
     }
 }
