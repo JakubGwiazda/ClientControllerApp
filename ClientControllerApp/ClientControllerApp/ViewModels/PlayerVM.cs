@@ -9,7 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
-
+using SQLite;
+using System.Linq;
 namespace ClientControllerApp
 {
      public class PlayerVM:INotifyPropertyChanged
@@ -27,11 +28,31 @@ namespace ClientControllerApp
         private int currentSongMaxDurationInSeconds;
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private bool _addIsVisible = true;
+        SQLiteAsyncConnection Database;
+        public  bool IsSongFromPlaylist { get; set; }
 
-        private  PlayerVM()
+        private PlayerVM()
         {
             CurrentSongMaxDurationInSeconds = 100;
             token = cancellationTokenSource.Token;
+            Database = DatabaseInitializator.Database();
+            this.SongEnding += TryToPlayNextSong;
+        }
+        public event EventHandler SongEnding;
+
+        private void TryToPlayNextSong(object sender, EventArgs e)
+        {
+            CurrentSongTime = "00:00";
+            PlaySongsFromPlaylist(PlayNextSongFromPlaylist(CurrentPlayingSong));
+        }
+
+        private void OnSongEndingReached(EventArgs e)
+        {
+            EventHandler handler = SongEnding;
+            if(handler != null)
+            {
+                handler(this, e);
+            }
         }
         private static PlayerVM _instance;
         public static PlayerVM Instance
@@ -96,6 +117,12 @@ namespace ClientControllerApp
             {
                 currentSongPosition = value;
                 OnPropertyChanged();
+                if (CurrentSongPosition== CurrentSongMaxDurationInSeconds && IsSongFromPlaylist)
+                {
+                    PlaySongsFromPlaylist(PlayNextSongFromPlaylist(CurrentPlayingSong));
+                   // OnSongEndingReached(EventArgs.Empty);
+                }
+
             }
 
         }
@@ -178,9 +205,33 @@ namespace ClientControllerApp
             Action update = UpdateTime;
             Thread.Sleep(500);// wymagane do odpowiedniego ustawienia czasów otrzymanych z serwera oraz czasu na wykonanie na nim operacji
             UpdateSongStatus(update, 0.5, token);
+            
         }
 
-    
+        public void PlaySongsFromPlaylist(string choosenSongFromPlaylist)
+        {
+            IsSongFromPlaylist = true;
+            if (choosenSongFromPlaylist != null) {
+           CurrentPlayingSong = choosenSongFromPlaylist;
+           CurrentAvailableDisplayOption = "pause.png";
+           Thread.Sleep(1000);
+           StartPlayingChoosenSong(choosenSongFromPlaylist);
+            }
+        }
+        private string PlayNextSongFromPlaylist(string songFromPlaylist)
+        {
+            string nextSong;
+            var dbSongs = Database.Table<Songs>().ToListAsync().Result;
+            var playlistId = (from song in dbSongs where song.SongTitle.Equals(songFromPlaylist) select song.PlaylistId).FirstOrDefault();
+            var songsFromCurrentPlayingPlaylist = (from songs in dbSongs where songs.PlaylistId.Equals(playlistId) orderby songs.ID select songs).ToList();
+            try { 
+            nextSong = songsFromCurrentPlayingPlaylist.SkipWhile(song => !song.SongTitle.Equals(songFromPlaylist)).Skip(1).FirstOrDefault().SongTitle;
+            }catch(Exception ex)
+            {
+                return null;
+            }
+                return nextSong;
+        }
         public void UpdateTime()
         {
             var songTimes = MessageReceiver.GetResponseFromServer();
@@ -194,20 +245,25 @@ namespace ClientControllerApp
             else
             {
                 CurrentSongPosition = GetSongTimeInSeconds(times);
+                TimeSpan time = TimeSpan.FromSeconds(CurrentSongPosition);
+                CurrentSongTime = time.ToString("mm':'ss");
+                
             }
         }
         private void UpdateSongStatus(Action action, double seconds, CancellationToken token)
         {
             if (action == null)
                 return;
-            Task.Run(async () =>
-            {
-                while (!token.IsCancellationRequested)
+            
+                Task.Run(async () =>
                 {
-                    action();
-                    await Task.Delay(TimeSpan.FromSeconds(seconds), token);
-                }
-            });
+                    while (!token.IsCancellationRequested)
+                    {
+                        action();
+                        await Task.Delay(TimeSpan.FromSeconds(seconds), token);
+                    }
+                });
+           
         }
 
         public int GetSongTimeInSeconds(SongData songTimes)

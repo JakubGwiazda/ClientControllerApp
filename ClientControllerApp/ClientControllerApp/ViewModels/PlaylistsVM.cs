@@ -182,15 +182,18 @@ namespace ClientControllerApp
             }
 
         });
-        public ICommand PlaySongFromPlaylist => new Command((p)=> {
-            PlayerVM.Instance.CurrentPlayingSong = (string)p;
-            PlayerVM.Instance.CurrentAvailableDisplayOption = "pause.png";
-         
-            OrderSender.PlaySong((string)p);
-            
-            ChoosenSongToPlayFromPlaylist = (string)p;
-
+        public ICommand PlaySongFromPlaylist => new Command((p) => {
+        PlayerVM.Instance.PlaySongsFromPlaylist((string)p);
         });
+        private string PlayNextSongFromPlaylist(string songFromPlaylist)
+        {
+            var dbSongs = Database.Table<Songs>().ToListAsync().Result;
+            var playlistId = from song in dbSongs where song.SongTitle.Equals(ChoosenSongToPlayFromPlaylist) select song.PlaylistId;
+            var songsFromCurrentPlayingPlaylist = (from songs in dbSongs where songs.PlaylistId.Equals(playlistId) orderby songs.ID select songs).ToList();
+            string nextSong = songsFromCurrentPlayingPlaylist.SkipWhile(song => !song.SongTitle.Equals(ChoosenSongToPlayFromPlaylist)).Skip(1).FirstOrDefault().SongTitle;
+            PlayerVM.Instance.CurrentPlayingSong = nextSong;
+            return nextSong;
+        }
         private bool CheckIfPlaylistAlreadyExists(string playlistTitleToSave)
         {
             var valueFromList = (from savedNames in PlaylistsToDisplay where savedNames.PlaylistTitle == playlistTitleToSave select savedNames);
@@ -225,14 +228,7 @@ namespace ClientControllerApp
             }
             return isSongSaved;
         } 
-        private string PlayNextSongFromPlaylist(string songFromPlaylist)
-        {
-            var dbSongs = Database.Table<Songs>().ToListAsync().Result;
-            var playlistId = from song in dbSongs where song.SongTitle.Equals(ChoosenSongToPlayFromPlaylist) select song.PlaylistId;
-            var songsFromCurrentPlayingPlaylist = (from songs in dbSongs where songs.PlaylistId.Equals(playlistId) orderby songs.ID select songs).ToList();
-            string nextSong = songsFromCurrentPlayingPlaylist.SkipWhile(song => !song.SongTitle.Equals(ChoosenSongToPlayFromPlaylist)).Skip(1).FirstOrDefault().SongTitle;
-            return nextSong;
-        }
+    
 
 
         void StartCountToHideValidationCommunicat()

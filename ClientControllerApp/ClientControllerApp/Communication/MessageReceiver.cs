@@ -20,7 +20,6 @@ namespace ClientControllerApp
             {
                  do
                 {
-                    
                     int numberOfBytesRead = Connector.Instance.stream.Read(msgBuffor, 0, msgBuffor.Length);
                     myCompleteMessage.AppendFormat("{0}", Encoding.UTF8.GetString(msgBuffor, 0, numberOfBytesRead));
                     Thread.Sleep(500);

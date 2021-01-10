@@ -100,7 +100,7 @@ namespace ClientControllerApp
             PlayerVM.Instance.CurrentPlayingSong = ((Song)e.SelectedItem).SongTitle;
             PlayerVM.Instance.CurrentAvailableDisplayOption = "pause.png";
             PlayerVM.Instance.StartPlayingChoosenSong(((Song)e.SelectedItem).SongTitle);
-          
+            PlayerVM.Instance.IsSongFromPlaylist = false;
 
         }
      
